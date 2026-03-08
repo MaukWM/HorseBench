@@ -1102,9 +1102,9 @@
 
   <script>
     const DATASET_OPTIONS = {
-      v2: {
+      v1: {
         label: "HorseBench (latest)",
-        basePath: "data/v2/latest",
+        basePath: "data/v1/latest",
       },
     };
 
@@ -1200,7 +1200,7 @@
         direction: "desc",
       },
       launchScatterWidth: 0,
-      datasetKey: "v2",
+      datasetKey: "v1",
       datasetPaths: null,
     };
 
@@ -1360,13 +1360,13 @@
     function datasetFromQuery() {
       const search = new URLSearchParams(window.location.search || "");
       const requested = String(search.get("dataset") || "").trim().toLowerCase();
-      return DATASET_OPTIONS[requested] ? requested : "v2";
+      return DATASET_OPTIONS[requested] ? requested : "v1";
     }
 
     function setDatasetQuery(datasetKey) {
-      const nextKey = DATASET_OPTIONS[datasetKey] ? datasetKey : "v2";
+      const nextKey = DATASET_OPTIONS[datasetKey] ? datasetKey : "v1";
       const url = new URL(window.location.href);
-      if (nextKey === "v2") {
+      if (nextKey === "v1") {
         url.searchParams.delete("dataset");
       } else {
         url.searchParams.set("dataset", nextKey);
@@ -1375,7 +1375,7 @@
     }
 
     function datasetMeta(datasetKey) {
-      return DATASET_OPTIONS[datasetKey] || DATASET_OPTIONS.v2;
+      return DATASET_OPTIONS[datasetKey] || DATASET_OPTIONS.v1;
     }
 
     function pathsForDataset(datasetKey) {
@@ -1407,7 +1407,7 @@
       ));
       el.datasetVersion.innerHTML = options.join("");
       const selected = datasetFromQuery();
-      el.datasetVersion.value = DATASET_OPTIONS[selected] ? selected : "v2";
+      el.datasetVersion.value = DATASET_OPTIONS[selected] ? selected : "v1";
       state.datasetKey = el.datasetVersion.value;
       state.datasetPaths = pathsForDataset(state.datasetKey);
     }
@@ -2611,7 +2611,7 @@
 
       if (!rawPoints.length) {
         el.launchScatterSvg.innerHTML = `<text x="50%" y="52%" text-anchor="middle" fill="#5d726b" font-size="16">No launch-mapped rows found for Anthropic, OpenAI, or Google.</text>`;
-        const launchPath = state.datasetPaths?.launchMetadata || "data/v2/latest/model_launch_dates.csv";
+        const launchPath = state.datasetPaths?.launchMetadata || "data/v1/latest/model_launch_dates.csv";
         el.launchScatterMeta.textContent = `Check ${launchPath} coverage.`;
         return;
       }
@@ -4046,7 +4046,7 @@
     }
 
     async function loadDatasetData(datasetKey) {
-      const key = DATASET_OPTIONS[datasetKey] ? datasetKey : "v2";
+      const key = DATASET_OPTIONS[datasetKey] ? datasetKey : "v1";
       const dataset = datasetMeta(key);
       const paths = pathsForDataset(key);
       state.datasetKey = key;
@@ -4113,7 +4113,7 @@
     function bindEvents() {
       if (el.datasetVersion) {
         el.datasetVersion.addEventListener("change", () => {
-          const nextKey = String(el.datasetVersion.value || "v2");
+          const nextKey = String(el.datasetVersion.value || "v1");
           loadDatasetData(nextKey);
         });
       }
