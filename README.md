@@ -1,4 +1,7 @@
-# HorseBench
+<h1>
+  <img src="images/horse.PNG" alt="HorseBench logo" width="64" />
+  HorseBench
+</h1>
 
 Horses don't stop, they keep going.
 

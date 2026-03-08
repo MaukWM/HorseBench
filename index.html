@@ -58,6 +58,9 @@
       margin-bottom: 32px;
     }
 
+    .header-title { display: flex; align-items: center; gap: 14px; }
+    .header-logo { width: 64px; height: auto; display: block; }
+
     header h1 {
       font-family: var(--mono);
       font-size: clamp(1.8rem, 4vw, 3rem);
@@ -937,8 +940,11 @@
 <body>
   <div class="container">
     <header>
-      <h1>Horse<span>Bench</span></h1>
-      <p class="tagline">Horses don't stop, they keep going. (Gauging which models are most eager to produce tokens and sensitive to fall into infinite repetitions)</p>
+      <div class="header-title">
+        <img class="header-logo" src="images/horse.PNG" alt="HorseBench logo">
+        <h1>Horse<span>Bench</span></h1>
+      </div>
+      <p class="tagline">Horses don't stop, they keep going. Gauges which models are most eager to produce tokens and most susceptible to falling into infinite repetitions.</p>
     </header>
 
     <section>
@@ -1008,16 +1014,15 @@
               <th class="sortable-th" data-sort-key="rank">Rank <span class="sort-ind" data-sort-ind="rank"></span></th>
               <th class="sortable-th" data-sort-key="model">Model <span class="sort-ind" data-sort-ind="model"></span></th>
               <th class="sortable-th" data-sort-key="org">Org <span class="sort-ind" data-sort-ind="org"></span></th>
-              <th class="sortable-th" data-sort-key="avgTokens">Avg Tokens <span class="sort-ind" data-sort-ind="avgTokens"></span></th>
-              <th class="sortable-th" data-sort-key="tokenStddev">StdDev <span class="sort-ind" data-sort-ind="tokenStddev"></span></th>
+              <th class="sortable-th" data-sort-key="avgTokens">Avg Tokens (std) <span class="sort-ind" data-sort-ind="avgTokens"></span></th>
               <!-- <th class="sortable-th" data-sort-key="reasoning">Reasoning <span class="sort-ind" data-sort-ind="reasoning"></span></th> -->
               <!-- <th class="sortable-th" data-sort-key="launchDate">Launch <span class="sort-ind" data-sort-ind="launchDate"></span></th> -->
               <!-- <th class="sortable-th" data-sort-key="modelAgeDays">Age <span class="sort-ind" data-sort-ind="modelAgeDays"></span></th> -->
               <th class="sortable-th" data-sort-key="greenRate">Workhorse% <span class="sort-ind" data-sort-ind="greenRate"></span></th>
               <th class="sortable-th" data-sort-key="amberRate">Halfhorse% <span class="sort-ind" data-sort-ind="amberRate"></span></th>
               <th class="sortable-th" data-sort-key="redRate">Garfield% <span class="sort-ind" data-sort-ind="redRate"></span></th>
-              <th class="sortable-th" data-sort-key="errorRate">Error% <span class="sort-ind" data-sort-ind="errorRate"></span></th>
-              <th>Mix</th>
+              <th>Workhorse Rate</th>
+              <th class="sortable-th" data-sort-key="avgCost">Avg Cost <span class="sort-ind" data-sort-ind="avgCost"></span></th>
               <th class="sortable-th" data-sort-key="rows">N <span class="sort-ind" data-sort-ind="rows"></span></th>
             </tr>
           </thead>
@@ -2463,6 +2468,10 @@
       const tokenStddev = tokens.length > 1
         ? Math.sqrt(tokens.reduce((sum, t) => sum + (t - avgTokens) ** 2, 0) / (tokens.length - 1))
         : 0;
+      const costs = rows
+        .map((r) => Number(r.response_cost_usd) || 0)
+        .filter((c) => c > 0);
+      const avgCost = costs.length ? costs.reduce((a, b) => a + b, 0) / costs.length : 0;
       return {
         counts,
         rows: rows.length,
@@ -2473,6 +2482,7 @@
         errorRate: pct(counts.error, rows.length),
         avgTokens: Math.round(avgTokens),
         tokenStddev: Math.round(tokenStddev),
+        avgCost,
       };
     }
 
@@ -3455,6 +3465,7 @@
         "modelAgeDays",
         "avgTokens",
         "tokenStddev",
+        "avgCost",
       ]);
       const dir = direction === "asc" ? 1 : -1;
       baseline.sort((a, b) => {
@@ -3515,18 +3526,17 @@
                   ${escapeHtml(displayOrg(row.org))}
                 </span>
               </td>
-              <td>${row.avgTokens.toLocaleString()}</td>
-              <td>${row.tokenStddev.toLocaleString()}</td>
+              <td>${row.avgTokens.toLocaleString()} <span style="opacity:.5">σ${row.tokenStddev.toLocaleString()}</span></td>
               <!-- <td>${escapeHtml(reasoningLabel)}</td> -->
               <!-- <td>${launchDateCell}</td> -->
               <!-- <td>${escapeHtml(modelAgeText)}</td> -->
               <td>${formatPct(row.greenRate)}</td>
               <td>${formatPct(row.amberRate)}</td>
               <td>${formatPct(row.redRate)}</td>
-              <td>${formatPct(row.errorRate)}</td>
               <td class="mix-cell">
                 <div class="mini-mix">${mix}</div>
               </td>
+              <td>${row.avgCost ? "$" + row.avgCost.toFixed(4) : "no cost"}</td>
               <td>${row.rows}</td>
             </tr>
           `;
