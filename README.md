@@ -1,5 +1,5 @@
 <h1>
-  <img src="images/horse_small.PNG" alt="HorseBench logo" />
+  <img src="images/horse.PNG" alt="HorseBench logo" width="38" />
   HorseBench
 </h1>
 
